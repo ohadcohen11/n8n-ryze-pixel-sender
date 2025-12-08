@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-ryze-pixel-sender",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "Custom n8n node for handling deduplication and sending affiliate events to TrafficPoint pixel service",
 	"license": "MIT",
 	"homepage": "",
