@@ -1,247 +1,215 @@
-![Banner image](https://user-images.githubusercontent.com/10284570/173569848-c624317f-42b1-45a6-ab09-f0ea3c247648.png)
+# n8n-nodes-ryze-pixel-sender
 
-# n8n-nodes-starter
+[![NPM Version](https://img.shields.io/npm/v/n8n-nodes-ryze-pixel-sender)](https://www.npmjs.com/package/n8n-nodes-ryze-pixel-sender)
 
-This starter repository helps you build custom integrations for [n8n](https://n8n.io). It includes example nodes, credentials, the node linter, and all the tooling you need to get started.
+A custom n8n node that handles deduplication and sending affiliate events to TrafficPoint pixel service.
 
-## Quick Start
+## ⚠️ Important: Self-Hosted Only
 
-> [!TIP]
-> **New to building n8n nodes?** The fastest way to get started is with `npm create @n8n/node`. This command scaffolds a complete node package for you using the [@n8n/node-cli](https://www.npmjs.com/package/@n8n/node-cli).
+**This node requires a self-hosted n8n installation and will NOT work in n8n Cloud** due to the `mysql2` dependency. n8n Cloud does not support community nodes with external dependencies.
 
-**To create a new node package from scratch:**
+## Features
 
-```bash
-npm create @n8n/node
-```
+- **Automatic Deduplication**: Checks MySQL database to prevent duplicate event submissions
+- **Batch Processing**: Efficiently processes multiple events in a single execution
+- **Smart Updates**: Detects and resends events with updated amounts or commissions
+- **TrafficPoint Integration**: Direct pixel tracking with proper authentication
+- **Comprehensive Logging**: Detailed execution reports with metrics
+- **Dry Run Mode**: Test mode for validating workflows without sending data
 
-**Already using this starter? Start developing with:**
+## Installation
 
-```bash
-npm run dev
-```
-
-This starts n8n with your nodes loaded and hot reload enabled.
-
-## What's Included
-
-This starter repository includes two example nodes to learn from:
-
-- **[Example Node](nodes/Example/)** - A simple starter node that shows the basic structure with a custom `execute` method
-- **[GitHub Issues Node](nodes/GithubIssues/)** - A complete, production-ready example built using the **declarative style**:
-  - **Low-code approach** - Define operations declaratively without writing request logic
-  - Multiple resources (Issues, Comments)
-  - Multiple operations (Get, Get All, Create)
-  - Two authentication methods (OAuth2 and Personal Access Token)
-  - List search functionality for dynamic dropdowns
-  - Proper error handling and typing
-  - Ideal for HTTP API-based integrations
-
-> [!TIP]
-> The declarative/low-code style (used in GitHub Issues) is the recommended approach for building nodes that interact with HTTP APIs. It significantly reduces boilerplate code and handles requests automatically.
-
-Browse these examples to understand both approaches, then modify them or create your own.
-
-## Finding Inspiration
-
-Looking for more examples? Check out these resources:
-
-- **[npm Community Nodes](https://www.npmjs.com/search?q=keywords:n8n-community-node-package)** - Browse thousands of community-built nodes on npm using the `n8n-community-node-package` tag
-- **[n8n Built-in Nodes](https://github.com/n8n-io/n8n/tree/master/packages/nodes-base/nodes)** - Study the source code of n8n's official nodes for production-ready patterns and best practices
-- **[n8n Credentials](https://github.com/n8n-io/n8n/tree/master/packages/nodes-base/credentials)** - See how authentication is implemented for various services
-
-These are excellent resources to understand how to structure your nodes, handle different API patterns, and implement advanced features.
-
-## Prerequisites
-
-Before you begin, install the following on your development machine:
-
-### Required
-
-- **[Node.js](https://nodejs.org/)** (v22 or higher) and npm
-  - Linux/Mac/WSL: Install via [nvm](https://github.com/nvm-sh/nvm)
-  - Windows: Follow [Microsoft's NodeJS guide](https://learn.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows)
-- **[git](https://git-scm.com/downloads)**
-
-### Recommended
-
-- Follow n8n's [development environment setup guide](https://docs.n8n.io/integrations/creating-nodes/build/node-development-environment/)
-
-> [!NOTE]
-> The `@n8n/node-cli` is included as a dev dependency and will be installed automatically when you run `npm install`. The CLI includes n8n for local development, so you don't need to install n8n globally.
-
-## Getting Started with this Starter
-
-Follow these steps to create your own n8n community node package:
-
-### 1. Create Your Repository
-
-[Generate a new repository](https://github.com/n8n-io/n8n-nodes-starter/generate) from this template, then clone it:
+### For Self-Hosted n8n:
 
 ```bash
-git clone https://github.com/<your-organization>/<your-repo-name>.git
-cd <your-repo-name>
+npm install n8n-nodes-ryze-pixel-sender
 ```
 
-### 2. Install Dependencies
+Then restart your n8n instance.
 
-```bash
-npm install
+### For n8n Docker:
+
+Add to your Dockerfile or docker-compose.yml:
+
+```dockerfile
+RUN npm install -g n8n-nodes-ryze-pixel-sender
 ```
 
-This installs all required dependencies including the `@n8n/node-cli`.
+## Requirements
 
-### 3. Explore the Examples
+- Self-hosted n8n instance (v1.0.0 or higher)
+- MySQL database (for deduplication tracking)
+- TrafficPoint API access (cookie authentication)
 
-Browse the example nodes in [nodes/](nodes/) and [credentials/](credentials/) to understand the structure:
+## Configuration
 
-- Start with [nodes/Example/](nodes/Example/) for a basic node
-- Study [nodes/GithubIssues/](nodes/GithubIssues/) for a real-world implementation
+### Credentials
 
-### 4. Build Your Node
+1. **MySQL Account**
+   - Host: Your MySQL server hostname
+   - Port: MySQL port (default: 3306)
+   - Database: Database name (default: cms)
+   - User: MySQL username
+   - Password: MySQL password
 
-Edit the example nodes to fit your use case, or create new node files by copying the structure from [nodes/Example/](nodes/Example/).
+2. **TrafficPoint API**
+   - Cookie Header: Full cookie string (e.g., `SES_TOKEN=...; VIEWER_TOKEN=...`)
+   - Pixel URL: TrafficPoint endpoint (default: `https://pixel.trafficpointltd.com/scraper`)
 
-> [!TIP]
-> If you want to scaffold a completely new node package, use `npm create @n8n/node` to start fresh with the CLI's interactive generator.
+### Node Parameters
 
-### 5. Configure Your Package
+- **Script ID** (required): Your scraper script ID for tracking
+- **Pixel URL** (optional): Override default TrafficPoint endpoint
+- **Options:**
+  - **Dry Run Mode**: Test without sending to pixel or database
+  - **Skip Deduplication**: Force send all items
+  - **MySQL Database**: Override database name
+  - **Verbose Logging**: Enable detailed debug output
 
-Update `package.json` with your details:
+## Input Schema
 
-- `name` - Your package name (must start with `n8n-nodes-`)
-- `author` - Your name and email
-- `repository` - Your repository URL
-- `description` - What your node does
+Each input item must contain these exact 9 fields:
 
-Make sure your node is registered in the `n8n.nodes` array.
-
-### 6. Develop and Test Locally
-
-Start n8n with your node loaded:
-
-```bash
-npm run dev
+```json
+{
+  "date": "2025-12-07T12:00:00",
+  "token": "abc123",
+  "event": "sale",
+  "trx_id": "brand-sale-abc123",
+  "io_id": "545f8472fe0af42e7bbb6903",
+  "commission_amount": 100,
+  "amount": 500,
+  "currency": "USD",
+  "parent_api_call": "Empty"
+}
 ```
 
-This command runs `n8n-node dev` which:
+## Output Schema
 
-- Builds your node with watch mode
-- Starts n8n with your node available
-- Automatically rebuilds when you make changes
-- Opens n8n in your browser (usually http://localhost:5678)
+The node outputs a comprehensive execution summary:
 
-You can now test your node in n8n workflows!
-
-> [!NOTE]
-> Learn more about CLI commands in the [@n8n/node-cli documentation](https://www.npmjs.com/package/@n8n/node-cli).
-
-### 7. Lint Your Code
-
-Check for errors:
-
-```bash
-npm run lint
+```json
+{
+  "execution": {
+    "mode": "regular",
+    "dry_run": false,
+    "script_id": "3000",
+    "timestamp": "2025-12-07T15:30:45.123Z",
+    "duration_ms": 2341
+  },
+  "summary": {
+    "total_input": 50,
+    "new_items": 35,
+    "exact_duplicates": 8,
+    "updated_items": 7,
+    "sent_to_pixel": 42,
+    "pixel_success": 40,
+    "pixel_failed": 2,
+    "db_inserted": 35,
+    "db_updated": 5
+  },
+  "details": {
+    "exact_duplicates": [...],
+    "updated_items": [...],
+    "failed_sends": [...],
+    "new_items_sample": [...]
+  },
+  "metrics": {
+    "mysql_check_ms": 120,
+    "pixel_send_ms": 2100,
+    "db_write_ms": 121
+  }
+}
 ```
 
-Auto-fix issues when possible:
+## Database Schema
 
-```bash
-npm run lint:fix
+The node requires a `scraper_tokens` table:
+
+```sql
+CREATE TABLE scraper_tokens (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  trx_id VARCHAR(255) UNIQUE NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  commission_amount DECIMAL(10,2) NOT NULL,
+  stream VARCHAR(50) DEFAULT 'scraper',
+  created_at DATETIME NOT NULL,
+  INDEX idx_trx_id (trx_id),
+  INDEX idx_created_at (created_at)
+);
 ```
 
-### 8. Build for Production
+## Deduplication Logic
 
-When ready to publish:
+The node identifies three types of items:
 
-```bash
-npm run build
+1. **New**: `trx_id` doesn't exist in database → Send to pixel
+2. **Exact Duplicate**: `trx_id`, `amount`, and `commission_amount` all match → Skip
+3. **Updated**: `trx_id` exists but `amount` or `commission_amount` changed → Resend
+
+## Use Cases
+
+### Standard Deduplication
+Process affiliate events and automatically skip duplicates while catching updated commissions.
+
+### Corrected Commissions
+Automatically detect and resend events when partner sends commission corrections.
+
+### Dry Run Testing
+Test workflow configuration without affecting production data or database.
+
+### Re-processing Data
+Use "Skip Deduplication" mode to resend historical data after system outages.
+
+## Workflow Example
+
+Replace this 6-8 node deduplication block:
+
+```
+Before:
+Filter → MySQL Check → Merge → Send to Pixel → Merge → IF OK → MySQL Insert → Done
+
+After:
+Ryze Pixel Sender → Done
 ```
 
-This compiles your TypeScript code to the `dist/` folder.
+## Performance
 
-### 9. Prepare for Publishing
-
-Before publishing:
-
-1. **Update documentation**: Replace this README with your node's documentation. Use [README_TEMPLATE.md](README_TEMPLATE.md) as a starting point.
-2. **Update the LICENSE**: Add your details to the [LICENSE](LICENSE.md) file.
-3. **Test thoroughly**: Ensure your node works in different scenarios.
-
-### 10. Publish to npm
-
-Publish your package to make it available to the n8n community:
-
-```bash
-npm publish
-```
-
-Learn more about [publishing to npm](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry).
-
-### 11. Submit for Verification (Optional)
-
-Get your node verified for n8n Cloud:
-
-1. Ensure your node meets the [requirements](https://docs.n8n.io/integrations/creating-nodes/deploy/submit-community-nodes/):
-   - Uses MIT license ✅ (included in this starter)
-   - No external package dependencies
-   - Follows n8n's design guidelines
-   - Passes quality and security review
-
-2. Submit through the [n8n Creator Portal](https://creators.n8n.io/nodes)
-
-**Benefits of verification:**
-
-- Available directly in n8n Cloud
-- Discoverable in the n8n nodes panel
-- Verified badge for quality assurance
-- Increased visibility in the n8n community
-
-## Available Scripts
-
-This starter includes several npm scripts to streamline development:
-
-| Script                | Description                                                      |
-| --------------------- | ---------------------------------------------------------------- |
-| `npm run dev`         | Start n8n with your node and watch for changes (runs `n8n-node dev`) |
-| `npm run build`       | Compile TypeScript to JavaScript for production (runs `n8n-node build`) |
-| `npm run build:watch` | Build in watch mode (auto-rebuild on changes)                    |
-| `npm run lint`        | Check your code for errors and style issues (runs `n8n-node lint`) |
-| `npm run lint:fix`    | Automatically fix linting issues when possible (runs `n8n-node lint --fix`) |
-| `npm run release`     | Create a new release (runs `n8n-node release`)                   |
-
-> [!TIP]
-> These scripts use the [@n8n/node-cli](https://www.npmjs.com/package/@n8n/node-cli) under the hood. You can also run CLI commands directly, e.g., `npx n8n-node dev`.
+- 50 items: ~2-3 seconds
+- 200 items: ~8-10 seconds
+- 500 items: ~20-25 seconds
 
 ## Troubleshooting
 
-### My node doesn't appear in n8n
+### Items sent but not in database
+- Check MySQL connection credentials
+- Verify `scraper_tokens` table exists
+- Check TrafficPoint response status
 
-1. Make sure you ran `npm install` to install dependencies
-2. Check that your node is listed in `package.json` under `n8n.nodes`
-3. Restart the dev server with `npm run dev`
-4. Check the console for any error messages
+### Too many duplicates detected
+- Verify `trx_id` uniqueness across workflows
+- Check date format ends with `T12:00:00`
+- Review MySQL query performance
 
-### Linting errors
+### TrafficPoint returns errors
+- Verify cookie header is current and valid
+- Check payload format matches specification
+- Confirm `io_id` exists in TrafficPoint system
 
-Run `npm run lint:fix` to automatically fix most common issues. For remaining errors, check the [n8n node development guidelines](https://docs.n8n.io/integrations/creating-nodes/).
+## Support
 
-### TypeScript errors
-
-Make sure you're using Node.js v22 or higher and have run `npm install` to get all type definitions.
-
-## Resources
-
-- **[n8n Node Documentation](https://docs.n8n.io/integrations/creating-nodes/)** - Complete guide to building nodes
-- **[n8n Community Forum](https://community.n8n.io/)** - Get help and share your nodes
-- **[@n8n/node-cli Documentation](https://www.npmjs.com/package/@n8n/node-cli)** - CLI tool reference
-- **[n8n Creator Portal](https://creators.n8n.io/nodes)** - Submit your node for verification
-- **[Submit Community Nodes Guide](https://docs.n8n.io/integrations/creating-nodes/deploy/submit-community-nodes/)** - Verification requirements and process
-
-## Contributing
-
-Have suggestions for improving this starter? [Open an issue](https://github.com/n8n-io/n8n-nodes-starter/issues) or submit a pull request!
+For issues and questions:
+- Email: ohad.cohen@ryzebeyond.com
+- GitHub: [Report an issue](https://github.com/ohadcohen11/n8n-nodes-ryze-pixel-sender/issues)
 
 ## License
 
-[MIT](https://github.com/n8n-io/n8n-nodes-starter/blob/master/LICENSE.md)
+MIT
+
+## Version History
+
+### v0.1.0 (Initial Release)
+- Basic deduplication with MySQL
+- TrafficPoint pixel integration
+- Dry run mode
+- Comprehensive logging and metrics

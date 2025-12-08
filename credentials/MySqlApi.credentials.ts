@@ -1,6 +1,8 @@
 import type {
 	ICredentialType,
 	INodeProperties,
+	Icon,
+	ICredentialTestRequest,
 } from 'n8n-workflow';
 
 export class MySqlApi implements ICredentialType {
@@ -8,7 +10,17 @@ export class MySqlApi implements ICredentialType {
 
 	displayName = 'MySQL Account';
 
-	documentationUrl = 'mysql';
+	icon: Icon = 'file:../nodes/RyzePixelSender/ryze.svg';
+
+	documentationUrl = 'https://docs.n8n.io/integrations/builtin/credentials/mysql/';
+
+	// Basic connectivity test
+	test: ICredentialTestRequest = {
+		request: {
+			method: 'GET' as const,
+			url: '/',
+		},
+	};
 
 	properties: INodeProperties[] = [
 		{

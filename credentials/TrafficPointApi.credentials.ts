@@ -1,6 +1,8 @@
 import type {
 	ICredentialType,
 	INodeProperties,
+	Icon,
+	ICredentialTestRequest,
 } from 'n8n-workflow';
 
 export class TrafficPointApi implements ICredentialType {
@@ -8,7 +10,17 @@ export class TrafficPointApi implements ICredentialType {
 
 	displayName = 'TrafficPoint API';
 
-	documentationUrl = 'trafficpoint';
+	icon: Icon = 'file:../nodes/RyzePixelSender/ryze.svg';
+
+	documentationUrl = 'https://github.com/ohadcohen11/n8n-nodes-ryze-pixel-sender';
+
+	// Test by making a request to the pixel endpoint
+	test: ICredentialTestRequest = {
+		request: {
+			method: 'GET' as const,
+			url: '={{$credentials.pixelUrl}}',
+		},
+	};
 
 	properties: INodeProperties[] = [
 		{

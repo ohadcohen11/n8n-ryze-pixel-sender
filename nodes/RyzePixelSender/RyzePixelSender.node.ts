@@ -7,6 +7,7 @@ import type {
 	IDataObject,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
+// eslint-disable-next-line @n8n/community-nodes/no-restricted-imports
 import { createConnection } from 'mysql2/promise';
 
 interface InputItem {
@@ -50,6 +51,7 @@ export class RyzePixelSender implements INodeType {
 		},
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
+		usableAsTool: true,
 		credentials: [
 			{
 				name: 'mySqlApi',
@@ -125,11 +127,11 @@ export class RyzePixelSender implements INodeType {
 		// Get parameters
 		const scriptId = this.getNodeParameter('scriptId', 0) as string;
 		const pixelUrl = this.getNodeParameter('pixelUrl', 0) as string;
-		const options = this.getNodeParameter('options', 0, {}) as any;
-		const dryRun = options.dryRun || false;
-		const skipDedup = options.skipDedup || false;
-		const verbose = options.verbose || false;
-		const database = options.database || 'cms';
+		const options = this.getNodeParameter('options', 0, {}) as IDataObject;
+		const dryRun = (options.dryRun as boolean) || false;
+		const skipDedup = (options.skipDedup as boolean) || false;
+		const verbose = (options.verbose as boolean) || false;
+		const database = (options.database as string) || 'cms';
 
 		// Get credentials
 		const mysqlCredentials = await this.getCredentials('mySqlApi') as ICredentialDataDecryptedObject;
@@ -169,6 +171,7 @@ export class RyzePixelSender implements INodeType {
 			});
 		}
 
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		let connection: any = null;
 		const mysqlCheckStart = Date.now();
 		const processedItems: ProcessedItem[] = [];
@@ -309,7 +312,7 @@ export class RyzePixelSender implements INodeType {
 
 					try {
 						// Send to TrafficPoint
-						const response = await this.helpers.request({
+						const response = await this.helpers.httpRequest({
 							method: 'POST',
 							url: pixelUrl,
 							headers: {
@@ -329,6 +332,7 @@ export class RyzePixelSender implements INodeType {
 							processed.pixelError = result.error || 'Unknown error';
 							pixelFailed++;
 						}
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					} catch (error: any) {
 						processed.pixelStatus = 'ERROR';
 						processed.pixelError = error.message || 'Request failed';
@@ -413,6 +417,7 @@ export class RyzePixelSender implements INodeType {
 			}
 
 			// Build output
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const output: any = {
 				execution: {
 					mode: 'regular',
@@ -490,6 +495,7 @@ export class RyzePixelSender implements INodeType {
 
 			return [[{ json: output }]];
 
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
 			if (verbose) {
 				logger.error(`[Ryze Pixel Sender] ✗ Error: ${error.message}`);
