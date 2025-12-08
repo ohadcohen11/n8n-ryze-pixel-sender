@@ -233,11 +233,8 @@ export class RyzePixelSender implements INodeType {
 						status: 'new',
 						action: 'send_to_pixel',
 					});
-				} else if (
-					Number(existing.amount) === Number(item.amount) &&
-					Number(existing.commission_amount) === Number(item.commission_amount)
-				) {
-					// EXACT DUPLICATE - All 3 fields match
+				} else if (Number(existing.amount) === Number(item.amount)) {
+					// EXACT DUPLICATE - trx_id and amount match (commission_amount ignored)
 					processedItems.push({
 						item,
 						status: 'duplicate',
@@ -245,7 +242,7 @@ export class RyzePixelSender implements INodeType {
 						existing,
 					});
 				} else {
-					// UPDATED - trx_id exists but amount/commission different
+					// UPDATED - trx_id exists but amount is different
 					processedItems.push({
 						item,
 						status: 'updated',
