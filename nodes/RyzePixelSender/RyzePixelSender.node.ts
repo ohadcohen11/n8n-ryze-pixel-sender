@@ -58,10 +58,6 @@ export class RyzePixelSender implements INodeType {
 				name: 'mySqlApi',
 				required: true,
 			},
-			{
-				name: 'trafficPointApi',
-				required: true,
-			},
 		],
 		properties: [
 			{
@@ -72,6 +68,16 @@ export class RyzePixelSender implements INodeType {
 				required: true,
 				placeholder: '3000',
 				description: 'Your scraper script ID for tracking and logging',
+			},
+			{
+				displayName: 'Cookie Header',
+				name: 'cookieHeader',
+				type: 'string',
+				typeOptions: { password: true },
+				default: '',
+				required: true,
+				placeholder: 'SES_TOKEN=...; VIEWER_TOKEN=...',
+				description: 'Full cookie header for TrafficPoint authentication',
 			},
 			{
 				displayName: 'Pixel URL',
@@ -134,6 +140,7 @@ export class RyzePixelSender implements INodeType {
 
 		// Get parameters
 		const scriptId = this.getNodeParameter('scriptId', 0) as string;
+		const cookieHeader = this.getNodeParameter('cookieHeader', 0) as string;
 		const pixelUrl = this.getNodeParameter('pixelUrl', 0) as string;
 		const options = this.getNodeParameter('options', 0, {}) as IDataObject;
 		const dryRun = (options.dryRun as boolean) || false;
@@ -144,9 +151,6 @@ export class RyzePixelSender implements INodeType {
 
 		// Get credentials
 		const mysqlCredentials = await this.getCredentials('mySqlApi') as ICredentialDataDecryptedObject;
-		const trafficPointCredentials = await this.getCredentials('trafficPointApi') as ICredentialDataDecryptedObject;
-
-		const cookieHeader = trafficPointCredentials.cookieHeader as string;
 
 		const logger = this.logger;
 

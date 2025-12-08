@@ -38,8 +38,7 @@
 		"n8nNodesApiVersion": 1,
 		"strict": true,
 		"credentials": [
-			"dist/credentials/MySqlApi.credentials.js",
-			"dist/credentials/TrafficPointApi.credentials.js"
+			"dist/credentials/MySqlApi.credentials.js"
 		],
 		"nodes": [
 			"dist/nodes/RyzePixelSender/RyzePixelSender.node.js"
