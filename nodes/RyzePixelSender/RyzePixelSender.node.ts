@@ -36,6 +36,7 @@ interface ProcessedItem {
 	existing?: ExistingRecord;
 	pixelStatus?: 'OK' | 'ERROR';
 	pixelError?: string;
+	pixelPayload?: string;
 }
 
 export class RyzePixelSender implements INodeType {
@@ -115,6 +116,13 @@ export class RyzePixelSender implements INodeType {
 						default: false,
 						description: 'Whether to include detailed debug information in output',
 					},
+					{
+						displayName: 'Include Request Payloads',
+						name: 'includePayloads',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to include the pixel request payloads in output for debugging',
+					},
 				],
 			},
 		],
@@ -131,6 +139,7 @@ export class RyzePixelSender implements INodeType {
 		const dryRun = (options.dryRun as boolean) || false;
 		const skipDedup = (options.skipDedup as boolean) || false;
 		const verbose = (options.verbose as boolean) || false;
+		const includePayloads = (options.includePayloads as boolean) || false;
 		const database = (options.database as string) || 'cms';
 
 		// Get credentials
@@ -310,6 +319,11 @@ export class RyzePixelSender implements INodeType {
 						}),
 					});
 
+					// Store payload for debugging if requested
+					if (includePayloads) {
+						processed.pixelPayload = payload;
+					}
+
 					try {
 						// Send to TrafficPoint
 						const response = await this.helpers.httpRequest({
@@ -480,6 +494,16 @@ export class RyzePixelSender implements INodeType {
 					db_write_ms: dbWriteMs,
 				},
 			};
+
+			// Add payloads if requested
+			if (includePayloads && toSend.length > 0) {
+				output.details.pixel_payloads = toSend.map(p => ({
+					trx_id: p.item.trx_id,
+					status: p.status,
+					pixel_status: p.pixelStatus || 'NOT_SENT',
+					payload: p.pixelPayload ? JSON.parse(p.pixelPayload) : null,
+				}));
+			}
 
 			// Add summary fields based on mode
 			if (dryRun) {
