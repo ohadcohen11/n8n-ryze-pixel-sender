@@ -1,15 +1,25 @@
 <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background circle -->
-  <circle cx="30" cy="30" r="28" fill="#2563EB" stroke="#1E40AF" stroke-width="2"/>
+  <!-- Background circle with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2563EB;stop-opacity:1" />
+    </linearGradient>
+  </defs>
 
-  <!-- Letter R -->
-  <text x="30" y="40" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white" text-anchor="middle">R</text>
+  <circle cx="30" cy="30" r="28" fill="url(#bgGradient)" stroke="#1E40AF" stroke-width="2"/>
 
-  <!-- Pixel/Send dots -->
-  <circle cx="48" cy="18" r="2" fill="#60A5FA"/>
-  <circle cx="52" cy="22" r="2" fill="#60A5FA"/>
-  <circle cx="54" cy="28" r="2" fill="#60A5FA"/>
+  <!-- "Pixel" text -->
+  <text x="30" y="38" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle" letter-spacing="0.5">PIXEL</text>
+
+  <!-- Pixel dots decoration (top right) -->
+  <circle cx="46" cy="14" r="1.5" fill="#60A5FA" opacity="0.8"/>
+  <circle cx="50" cy="14" r="1.5" fill="#60A5FA" opacity="0.9"/>
+  <circle cx="54" cy="14" r="1.5" fill="#60A5FA"/>
+  <circle cx="46" cy="18" r="1.5" fill="#60A5FA" opacity="0.7"/>
+  <circle cx="50" cy="18" r="1.5" fill="#60A5FA" opacity="0.8"/>
+  <circle cx="54" cy="18" r="1.5" fill="#60A5FA" opacity="0.9"/>
 
   <!-- Send arrow -->
-  <path d="M 46 14 L 54 10 L 50 18" stroke="#60A5FA" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 12 44 L 20 40 L 16 48" stroke="#60A5FA" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

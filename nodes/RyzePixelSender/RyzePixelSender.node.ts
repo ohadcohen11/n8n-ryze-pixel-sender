@@ -186,7 +186,6 @@ export class RyzePixelSender implements INodeType {
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		let connection: any = null;
-		const mysqlCheckStart = Date.now();
 		const processedItems: ProcessedItem[] = [];
 
 		try {
@@ -222,8 +221,6 @@ export class RyzePixelSender implements INodeType {
 					logger.info(`[Ryze Pixel Sender] ✓ Found ${existingRecords.length} existing records in DB`);
 				}
 			}
-
-			const mysqlCheckMs = Date.now() - mysqlCheckStart;
 
 			// Process each item
 			for (const item of inputItems) {
@@ -283,7 +280,6 @@ export class RyzePixelSender implements INodeType {
 			}
 
 			// Step 2: Send to TrafficPoint (unless dry run)
-			const pixelSendStart = Date.now();
 			let pixelSuccess = 0;
 			let pixelFailed = 0;
 
@@ -371,10 +367,7 @@ export class RyzePixelSender implements INodeType {
 				}
 			}
 
-			const pixelSendMs = Date.now() - pixelSendStart;
-
 			// Step 3: Database Insert/Update (unless dry run)
-			const dbWriteStart = Date.now();
 			let dbInserted = 0;
 			let dbUpdated = 0;
 
@@ -426,7 +419,6 @@ export class RyzePixelSender implements INodeType {
 				}
 			}
 
-			const dbWriteMs = Date.now() - dbWriteStart;
 			const duration = Date.now() - startTime;
 
 			if (verbose) {
@@ -491,11 +483,6 @@ export class RyzePixelSender implements INodeType {
 						event: p.item.event,
 						pixel_status: p.pixelStatus || 'PENDING',
 					})),
-				},
-				metrics: {
-					mysql_check_ms: mysqlCheckMs,
-					pixel_send_ms: pixelSendMs,
-					db_write_ms: dbWriteMs,
 				},
 			};
 
