@@ -1,19 +1,24 @@
 {
-	"name": "n8n-nodes-<...>",
+	"name": "n8n-nodes-ryze-pixel-sender",
 	"version": "0.1.0",
-	"description": "",
+	"description": "Custom n8n node for handling deduplication and sending affiliate events to TrafficPoint pixel service",
 	"license": "MIT",
 	"homepage": "",
 	"keywords": [
-		"n8n-community-node-package"
+		"n8n-community-node-package",
+		"n8n",
+		"ryze",
+		"pixel",
+		"trafficpoint",
+		"affiliate"
 	],
 	"author": {
-		"name": "",
-		"email": ""
+		"name": "Ryze Beyond",
+		"email": "ohad.cohen@ryzebeyond.com"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/<...>/n8n-nodes-<...>.git"
+		"url": "https://github.com/ryzebeyond/n8n-nodes-ryze-pixel-sender.git"
 	},
 	"scripts": {
 		"build": "n8n-node build",
@@ -32,11 +37,14 @@
 		"strict": true,
 		"credentials": [
 			"dist/credentials/GithubIssuesApi.credentials.js",
-			"dist/credentials/GithubIssuesOAuth2Api.credentials.js"
+			"dist/credentials/GithubIssuesOAuth2Api.credentials.js",
+			"dist/credentials/MySqlApi.credentials.js",
+			"dist/credentials/TrafficPointApi.credentials.js"
 		],
 		"nodes": [
 			"dist/nodes/GithubIssues/GithubIssues.node.js",
-			"dist/nodes/Example/Example.node.js"
+			"dist/nodes/Example/Example.node.js",
+			"dist/nodes/RyzePixelSender/RyzePixelSender.node.js"
 		]
 	},
 	"devDependencies": {
@@ -45,6 +53,9 @@
 		"prettier": "3.6.2",
 		"release-it": "^19.0.4",
 		"typescript": "5.9.2"
+	},
+	"dependencies": {
+		"mysql2": "^3.11.5"
 	},
 	"peerDependencies": {
 		"n8n-workflow": "*"

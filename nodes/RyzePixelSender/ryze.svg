@@ -1,0 +1,15 @@
+<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="30" cy="30" r="28" fill="#2563EB" stroke="#1E40AF" stroke-width="2"/>
+
+  <!-- Letter R -->
+  <text x="30" y="40" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white" text-anchor="middle">R</text>
+
+  <!-- Pixel/Send dots -->
+  <circle cx="48" cy="18" r="2" fill="#60A5FA"/>
+  <circle cx="52" cy="22" r="2" fill="#60A5FA"/>
+  <circle cx="54" cy="28" r="2" fill="#60A5FA"/>
+
+  <!-- Send arrow -->
+  <path d="M 46 14 L 54 10 L 50 18" stroke="#60A5FA" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
