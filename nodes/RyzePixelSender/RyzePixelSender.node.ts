@@ -423,65 +423,61 @@ export class RyzePixelSender implements INodeType {
 				logger.info(`[Ryze Pixel Sender] ✓ Completed in ${(duration / 1000).toFixed(1)}s`);
 			}
 
-			// Build output
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const output: any = {
-				execution: {
-					mode: 'regular',
-					dry_run: dryRun,
-					script_id: scriptId,
-					timestamp: new Date().toISOString(),
-					duration_ms: duration,
-				},
-				summary: {
-					total_input: items.length,
-					new_items: newItems.length,
-					exact_duplicates: duplicates.length,
-					updated_items: updatedItems.length,
-				},
-				details: {
-					exact_duplicates: duplicates.map(p => ({
+		// Build output
+		// Calculate event summary from items sent to pixel
+		const sentItems = [...newItems, ...updatedItems].filter(p => p.pixelStatus === 'OK' || !dryRun);
+		const eventSummary: Record<string, number> = {};
+		sentItems.forEach(p => {
+			eventSummary[p.item.event] = (eventSummary[p.item.event] || 0) + 1;
+		});
+
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const output: any = {
+			execution: {
+				mode: 'regular',
+				dry_run: dryRun,
+				script_id: scriptId,
+				timestamp: new Date().toISOString(),
+				duration_ms: duration,
+			},
+			summary: {
+				total_input: items.length,
+				new_items: newItems.length,
+				exact_duplicates: duplicates.length,
+				updated_items: updatedItems.length,
+				event_summary: eventSummary,
+			},
+			details: {
+				sent_items: {
+					items: sentItems.slice(0, 200).map(p => ({
 						trx_id: p.item.trx_id,
-						amount: p.item.amount,
-						commission_amount: p.item.commission_amount,
-						first_seen: p.existing?.created_at.toISOString(),
-						action: 'skipped',
-					})),
-					updated_items: updatedItems.map(p => ({
-						trx_id: p.item.trx_id,
-						action: 'updated_and_sent',
-						changes: {
-							old_amount: p.existing!.amount,
-							new_amount: p.item.amount,
-							old_commission: p.existing!.commission_amount,
-							new_commission: p.item.commission_amount,
-							first_seen: p.existing!.created_at.toISOString(),
-						},
-						pixel_status: p.pixelStatus || 'PENDING',
-					})),
-					failed_sends: toSend.filter(p => p.pixelStatus === 'ERROR').map(p => ({
-						trx_id: p.item.trx_id,
-						io_id: p.item.io_id,
-						error: p.pixelError,
-						amount: p.item.amount,
-						commission_amount: p.item.commission_amount,
-						was_update: p.status === 'updated',
-						changes: p.status === 'updated' ? {
-							old_amount: p.existing!.amount,
-							new_amount: p.item.amount,
-							old_commission: p.existing!.commission_amount,
-							new_commission: p.item.commission_amount,
-						} : undefined,
-					})),
-					new_items_sample: newItems.slice(0, 5).map(p => ({
-						trx_id: p.item.trx_id,
-						amount: p.item.amount,
-						commission_amount: p.item.commission_amount,
 						event: p.item.event,
+						amount: p.item.amount,
+						commission_amount: p.item.commission_amount,
+						status: p.status,
 						pixel_status: p.pixelStatus || 'PENDING',
 					})),
+					total: sentItems.length,
+					showing: Math.min(200, sentItems.length),
+					truncated: sentItems.length > 200,
 				},
-			};
+				failed_sends: toSend.filter(p => p.pixelStatus === 'ERROR').map(p => ({
+					trx_id: p.item.trx_id,
+					io_id: p.item.io_id,
+					error: p.pixelError,
+					amount: p.item.amount,
+					commission_amount: p.item.commission_amount,
+					event: p.item.event,
+					was_update: p.status === 'updated',
+					changes: p.status === 'updated' ? {
+						old_amount: p.existing!.amount,
+						new_amount: p.item.amount,
+						old_commission: p.existing!.commission_amount,
+						new_commission: p.item.commission_amount,
+					} : undefined,
+				})),
+			},
+		};
 
 			// Add payloads if requested
 			if (includePayloads && toSend.length > 0) {
