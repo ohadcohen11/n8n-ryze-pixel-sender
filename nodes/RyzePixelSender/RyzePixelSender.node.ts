@@ -184,6 +184,18 @@ export class RyzePixelSender implements INodeType {
 			});
 		}
 
+		// Deduplicate input items by trx_id (keep last occurrence)
+		const deduplicatedItems: InputItem[] = [];
+		const seenTrxIds = new Map<string, InputItem>();
+		for (const item of inputItems) {
+			seenTrxIds.set(item.trx_id, item);
+		}
+		deduplicatedItems.push(...seenTrxIds.values());
+
+		if (verbose && inputItems.length !== deduplicatedItems.length) {
+			logger.info(`[Ryze Pixel Sender] Deduplicated input: ${inputItems.length} → ${deduplicatedItems.length} items`);
+		}
+
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		let connection: any = null;
 		const processedItems: ProcessedItem[] = [];
@@ -207,7 +219,7 @@ export class RyzePixelSender implements INodeType {
 				});
 
 				// Batch query for all trx_ids
-				const trxIds = inputItems.map(item => item.trx_id);
+				const trxIds = deduplicatedItems.map(item => item.trx_id);
 				const [rows] = await connection.execute(
 					`SELECT trx_id, amount, commission_amount, created_at
 					FROM scraper_tokens
@@ -223,7 +235,7 @@ export class RyzePixelSender implements INodeType {
 			}
 
 			// Process each item
-			for (const item of inputItems) {
+			for (const item of deduplicatedItems) {
 				const existing = existingRecords.find(row => row.trx_id === item.trx_id);
 
 				if (!existing) {
