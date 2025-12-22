@@ -164,7 +164,7 @@ export class RyzePixelSender implements INodeType {
 		const inputItems: InputItem[] = [];
 		for (let i = 0; i < items.length; i++) {
 			const item = items[i].json as IDataObject;
-			if (!item.date || !item.token || !item.event || !item.trx_id || !item.io_id) {
+			if (!item.date || !item.event || !item.trx_id || !item.io_id) {
 				throw new NodeOperationError(
 					this.getNode(),
 					`Item ${i} is missing required fields. Expected: date, token, event, trx_id, io_id, commission_amount, amount, currency, parent_api_call`,
@@ -173,7 +173,7 @@ export class RyzePixelSender implements INodeType {
 			}
 			inputItems.push({
 				date: item.date as string,
-				token: item.token as string,
+				token: (item.token as string) || '',
 				event: item.event as string,
 				trx_id: item.trx_id as string,
 				io_id: item.io_id as string,
